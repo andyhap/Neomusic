@@ -1,32 +1,27 @@
+// Login.js
 
 import React, { useState } from "react";
-import "./style/Login.css";
+import "./style/SignUp.css";
 import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
-// Import ikon mata dari react-icons/fi
-import { FiEye, FiEyeOff } from "react-icons/fi"; // TAMBAHKAN INI
 
 import LogoNeomusic from "../assets/images/Logo Neomusic.png";
 
-// ... (Imports gambar tetap sama)
+
 
 export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  
-  // STATE BARU UNTUK TOGGLE PASSWORD VISIBILITY
-  const [showPassword, setShowPassword] = useState(false);
-
+  const [error, setError] = useState(""); // State untuk pesan error
+  const navigate = useNavigate(); // Inisialisasi useNavigate
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = (e) => { // FUNGSI LOGIN
     e.preventDefault();
 
     const { email, password } = form;
@@ -36,46 +31,54 @@ export default function Login() {
         return;
     }
     
+    // 1. Ambil data user dari "backend" (localStorage)
     const storedUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
     
+    // 2. Cari user yang cocok
     const user = storedUsers.find(
       (u) => u.email === email && u.password === password
     );
 
     if (user) {
+      // 3. Login Berhasil: Set status dan data profile
       localStorage.setItem("isLoggedIn", "true");
+      // Simpan data user yang akan diakses oleh Profile Page
       const userProfile = {
           id: user.id,
           username: user.username,
           email: user.email,
           joinDate: user.joinDate
+          // HINDARI MENYIMPAN PASSWORD DI localStorage
       };
       localStorage.setItem("userProfile", JSON.stringify(userProfile));
       
+      // 4. Navigasi ke halaman Home
       console.log("Login berhasil, navigasi ke /home");
       navigate("/home"); 
 
     } else {
+      // Login gagal
       setError("Email atau password tidak ditemukan.");
     }
   };
 
   return (
     <div className="signup-container">
-      {/* LEFT */}
+      {/* LEFT (Struktur Tidak Diubah) */}
       <div className="signup-left">
         <div className="signup-logo">
           <img src={LogoNeomusic} alt="logo" />
         </div>
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT (Struktur Tidak Diubah) */}
       <div className="signup-right">
         <div className="signup-card">
 
           <h2>LOGIN</h2>
           <p>Welcome back!</p>
-
+          
+          {/* Menampilkan Error */}
           {error && <p style={{ color: 'red', margin: '10px 0', textAlign: 'center' }}>{error}</p>}
 
           <input
@@ -86,25 +89,15 @@ export default function Login() {
             onChange={handleChange}
           />
 
-          {/* INPUT PASSWORD */}
-          <div className="input-group">
-            <input
-              type={showPassword ? "text" : "password"} // TOGGLE TYPE
-              name="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-            />
-            <span 
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FiEye /> : <FiEyeOff />}
-            </span>
-          </div>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+          />
 
-
-          <button className="btn-signup" onClick={handleLogin}>
+          <button className="btn-signup" onClick={handleLogin}> {/* Tambahkan onClick */}
             Login
           </button>
 
@@ -117,6 +110,8 @@ export default function Login() {
             Don’t have an account? <Link to="/signup">Sign Up</Link>
           </p>
           
+         
+
         </div>
       </div>
     </div>

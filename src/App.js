@@ -1,4 +1,4 @@
-// App.js
+// App.js (SETELAH DIPERBAIKI)
 
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom"; // Import Navigate
 import { useNavigate } from "react-router-dom"; // Import useNavigate (untuk ProfilePage mock)
@@ -170,9 +170,8 @@ function AppLayout() {
 // APP
 // =========================
 export default function App() {
+  // HAPUS PANGGILAN <Router> DI SINI KARENA SUDAH ADA DI index.js
   return (
-    <Router>
-      <AppLayout />
-    </Router>
+    <AppLayout /> 
   );
 }

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 // Menggunakan style yang sama dengan ArtistList (diasumsikan sudah disinkronkan)
 import "../components/style/MusicList.css"; 
 import logo from "../assets/images/Logo Neomusic.png";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom"; 
 import { musics as mockMusics, artists as mockArtists } from "../data/MockData.js"; 
 // Import ikon hapus

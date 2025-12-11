@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import "./style/Home.css";
 import { FiHome, FiSearch, FiGrid } from "react-icons/fi";
