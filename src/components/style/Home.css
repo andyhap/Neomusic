@@ -15,7 +15,7 @@ body {
   padding: 20px 28px 110px;
 }
 
-/* grid lebih seimbang kiri - tengah - kanan */
+
 .home-container {
   display: grid;
   grid-template-columns: 300px minmax(600px, 1fr) 280px;
@@ -315,7 +315,7 @@ body {
   object-fit: cover;
 }
 
-/* cards (lebih kecil) */
+/* cards*/
 .music-cards {
   display: grid;
   gap: 14px;
@@ -712,13 +712,7 @@ body {
 
 /* ============================================
    VIEW: SHOW ALL RECENTLY PLAYED (CENTER)
-   Menampilkan ulang Top Artist + Recently Played
    ============================================ */
-
-/* =============================
-   SHOW ALL RECENTLY - TOP ARTIST
-   Tidak mengganggu Home 👍
-   ============================= */
 
 .recently-artists {
   display: flex;
@@ -768,7 +762,7 @@ body {
 }
 
 /* =========================================
-   VIEW: SHOW ALL RECENTLY (FIGMA VERSION)
+   VIEW: SHOW ALL RECENTLY 
    HANYA PENGGANTI BAGIAN DI ATAS
    ========================================= */
 
@@ -924,7 +918,7 @@ body {
 .right-recently-text p {
   margin: 4px 0 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6); /* abu-abu */
+  color: rgba(255, 255, 255, 0.6); 
 }
 
 /* Tombol play */
@@ -954,8 +948,7 @@ body {
 }
 
 
-
-/* Bikin center card lebih "lega" pas recently */
+/* Besarkan cards di expanded recently */
 .home-root .center-card .recently-all .music-cards {
   gap: 22px;
 }
@@ -1168,7 +1161,7 @@ body {
   border: 1px solid rgba(255,255,255,0.04);
 }
 
-/* ✅ Image tetap proporsional & tidak terpotong */
+/*Image tetap proporsional & tidak terpotong */
 .full-player-banner img {
   width: 100%;
   max-width: 440px;
@@ -1179,13 +1172,13 @@ body {
   transition: transform 0.5s ease, filter 0.5s ease;
 }
 
-/* ===== Hover efek lebih mahal ===== */
+/* ===== Hover efek ===== */
 .full-player-banner:hover img {
   transform: scale(1.025);
   filter: brightness(1.08) saturate(1.05);
 }
 
-/* glow ring lembut */
+/* glow ring */
 .full-player-banner::after {
   content: "";
   position: absolute;
@@ -1425,10 +1418,11 @@ body {
   }
 }
 
+
 .search-results-global {
   display: flex;
-  flex-direction: column;
-  grid-template-columns: repeat(4, 1fr); /* ✅ 4 card per baris */
+  flex-direction: row;
+  grid-template-rows: repeat(4, 1fr); /* 4 card per baris */
   gap: 16px;
 }
 
@@ -1471,9 +1465,9 @@ body {
 
 /* ===== Popup Card (bentuk kecil & rounded) ===== */
 .recently-popup-card {
-  width: 320px;              /* ✅ tidak terlalu lebar */
-  max-height: 520px;         /* ✅ tidak terlalu tinggi */
-  background: rgba(90, 90, 110, 0.35);  /* ✅ warna abu transparan */
+  width: 320px;              
+  max-height: 520px;         
+  background: rgba(90, 90, 110, 0.35);  
 
   backdrop-filter: blur(18px);
   border-radius: 22px;
@@ -1605,7 +1599,7 @@ body {
 
 .clear-recent-btn {
   font-size: 12px;
-  margin-top: 12px;          /* jarak ke atas */
+  margin-top: 12px;          
   display: block;   
    margin-left: auto;
   margin-right: auto;
@@ -1613,7 +1607,7 @@ body {
   color: #e2e2e2;
   border: none;
   padding: 6px 14px;
-  border-radius: 999px; /* bikin tumpul */
+  border-radius: 999px; 
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1630,3 +1624,47 @@ body {
   transform: scale(0.96);
 }
 
+
+.center-card .artist-list,
+.top-artist .artist-list,
+.search-page .artist-list,
+.recently-view .artist-list {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 18px;
+  
+  flex-wrap: nowrap !important;
+
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.center-card .artist-list > .artist-avatar,
+.top-artist .artist-list > .artist-avatar,
+.recently-view .artist-list > .artist-avatar {
+  flex: 0 0 auto;
+  min-width: 65px; 
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.center-card .artist-list .artist-avatar img,
+.top-artist .artist-list .artist-avatar img,
+.recently-view .artist-list .artist-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.center-card .artist-list > * {
+  min-width: 0;
+}

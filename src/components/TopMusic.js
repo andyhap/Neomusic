@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./style/TopMusic.css";
 
-/* --- IMAGES: ganti path jika namamu berbeda --- */
+/* --- IMAGES--- */
 import aptImg from "../assets/images/APT.png";
 import dieImg from "../assets/images/die with a smile.png";
 import justImg from "../assets/images/Just the way you are.jpg";
@@ -12,21 +12,18 @@ import loveImg from "../assets/images/Love.jpg";
 import iheartImg from "../assets/images/i heart you.jpg";
 import loseImg from "../assets/images/lose.jpg";
 
-/* --- AUDIO: letakkan file mp3 di src/assets/audio/ --- */
-/* Ubah nama file import jika berbeda */
+/* --- AUDIO --- */
 import aptAudio from "../assets/audio/apt.mp3";
 import dieAudio from "../assets/audio/die_with_a_smile.mp3";
 import justAudio from "../assets/audio/just_the_way.mp3";
 
 const TopMusic = () => {
-  // playlist utama (3 lagu contoh)
   const playlist = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
     { id: 1, title: "Die With a Smile", artist: "Bruno Mars", img: dieImg, src: dieAudio },
     { id: 2, title: "Just The Way You Are", artist: "Bruno Mars", img: justImg, src: justAudio },
   ];
 
-  // additional list for sidebar (visual only)
   const sidebarList = [
     { img: aptImg, title: "APT.", artist: "Bruno Mars" },
     { img: dieImg, title: "Die With a Smile", artist: "Bruno Mars" },
@@ -46,7 +43,6 @@ const TopMusic = () => {
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(1);
 
-  // load metadata when track changes
   useEffect(() => {
     const audio = audioRef.current;
     audio.src = playlist[index].src;
@@ -67,10 +63,10 @@ const TopMusic = () => {
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("ended", onEnd);
 
-    // autoplay if was playing
+    
     if (isPlaying) {
       audio.play().catch(() => {
-        /* autoplay blocked */ 
+       
       });
     }
 

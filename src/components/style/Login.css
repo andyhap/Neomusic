@@ -157,3 +157,28 @@
   color: #ff3cac;
   text-decoration: none;
 }
+
+/* Wrapper untuk Input dan Ikon */
+.input-group {
+    position: relative;
+    width: 90%; /* Sesuaikan dengan lebar input */
+    margin: 8px auto; /* Untuk menjaga margin vertikal input */
+}
+
+/* Terapkan width 100% pada input di dalam group */
+.signup-card .input-group input {
+    width: 100%; 
+    margin: 0; /* Hapus margin vertikal ganda */
+}
+
+/* Style Ikon Mata */
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #d4d4d4;
+    font-size: 18px; /* Ukuran ikon */
+    z-index: 10;
+}

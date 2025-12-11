@@ -1,5 +1,4 @@
-// Home.js (updated)
-// Full file — copy-replace file Home.js mu dengan ini
+
 import React, { useRef, useState, useEffect } from "react";
 import "./style/Home.css";
 import { FiHome, FiSearch, FiGrid } from "react-icons/fi";
@@ -13,7 +12,7 @@ import havanaImg from "../assets/images/Havana.png";
 import collideImg from "../assets/images/Collide.jpg";
 import aboutYouImg from "../assets/images/about you.jpg";
 import loveImg from "../assets/images/Love.jpg";
-import iHeartImg from "../assets/images/i heart you.jpg";
+import iHeartImg from "../assets/images/i heart you.jpg"; 
 import loseImg from "../assets/images/lose.jpg";
 import likedsongimg from "../assets/images/liked_songs.png";
 import topsongimg from "../assets/images/top_songs.png";
@@ -112,12 +111,11 @@ export default function Home() {
 
   ];
 
-  // ✅ GABUNGAN SEMUA LAGU UNTUK PLAYER
 const allSongs = [
   ...playlist,
   ...recommendList.map((r, i) => ({
     ...r,
-    id: playlist.length + i, // hindari tabrakan id
+    id: playlist.length + i, 
   })),
 ];
 
@@ -267,7 +265,7 @@ const backToHomeFromArtist = () => {
           a.removeEventListener("loadedmetadata", onLoaded);
         };
         a.addEventListener("loadedmetadata", onLoaded);
-        // try to load (some browsers may block until user gesture)
+        // try to load 
         a.load();
       } catch (e) {
         // ignore
@@ -385,7 +383,7 @@ const backToHomeFromArtist = () => {
   const found = playlist.findIndex((p) => p.title === s.title);
 
   if (found !== -1) {
-    onAlbumClick(found); // ✅ fungsi biar auto masuk recently
+    onAlbumClick(found); //  fungsi auto masuk recently
   }
 };
 
@@ -427,11 +425,6 @@ const backToHomeFromArtist = () => {
 
   const allTopMusic = [
     ...playlist.map(p => ({ img: p.img, title: p.title, artist: p.artist })),
-    // { img: aboutYouImg, title: "About You", artist: "The 1975" },
-    // { img: loveImg, title: "Love", artist: "Keyshia Cole" },
-    // { img: iHeartImg, title: "i <3 u", artist: "Boy Pablo" },
-    // { img: loseImg, title: "Lose", artist: "NIKI" },
-    // { img: havanaImg, title: "Havana", artist: "Camila Cabello" }
   ];
 
   const allRecommendationStation = [
@@ -573,7 +566,7 @@ const filteredResults = playlist.filter((song) =>
             <div className="search-row">
               {/* ===== GLOBAL SEARCH OVERLAY (HIGH PRIORITY) ===== */}
               {isSearching && (
-                <div className="search-results-global">
+                <div className="search-result-global">
                   <h3 className="search-title">Search Results</h3>
 
                   {filteredResults.length === 0 ? (
@@ -1263,6 +1256,3 @@ const filteredResults = playlist.filter((song) =>
     </div>
   );
 }
- 
-
- 

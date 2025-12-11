@@ -16,7 +16,7 @@
   padding: 30px 20px 15px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* FIX: semua sejajar atas */
+  align-items: flex-start; 
   flex-wrap: wrap;
 }
 
@@ -61,8 +61,8 @@ html, body {
 .footer-right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* rata kanan */
-  width: 320px; /* FIX: beri ruang agar tombol tidak menabrak */
+  align-items: flex-end; 
+  width: 320px; 
   text-align: right;
 }
 
@@ -78,7 +78,7 @@ html, body {
   transition: 0.3s ease;
   white-space: nowrap;
 
-  margin-bottom: 20px; /* jarak aman */
+  margin-bottom: 20px; 
   margin-top: 13px;
 }
 

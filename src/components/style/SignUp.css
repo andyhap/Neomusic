@@ -26,7 +26,7 @@
 }
 
 .signup-logo img {
-  width: 220px;  /* tetap besar, sesuai permintaan */
+  width: 220px;  
 }
 
 /* RIGHT SIDE */
@@ -39,17 +39,17 @@
   justify-content: center;
 }
 
-/* CARD (lebih ramping & ada ruang atas/bawah) */
+/* CARD  */
 .signup-card {
-  width: 320px;            /* diperkecil */
-  padding: 28px 22px;      /* disesuaikan */
+  width: 320px;            
+  padding: 28px 22px;      
   border-radius: 18px;
 
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(22px);
   border: 1px solid rgba(255, 255, 255, 0.15);
 
-  margin-top: 30px;        /* tambahan jarak */
+  margin-top: 30px;        
   margin-bottom: 30px;
 
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.65);
@@ -66,21 +66,21 @@
 .signup-card p {
   font-size: 13px;
   color: #bdbdbd;
-  margin-bottom: 18px;     /* diperpendek */
+  margin-bottom: 18px;     
 }
 
-/* INPUT (lebih kecil agar card rapi) */
+/* INPUT  */
 .signup-card input {
   width: 90%;
-  padding: 10px 10px;       /* dikurangi */
+  padding: 10px 10px;       
   border-radius: 8px;
-  margin: 8px 0;            /* lebih rapat */
+  margin: 8px 0;           
 
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
 
   color: white;
-  font-size: 13px;          /* mengecil */
+  font-size: 13px;         
   outline: none;
 }
 
@@ -113,7 +113,7 @@
 .signup-divider {
   display: flex;
   align-items: center;
-  margin: 20px 0;          /* diperkecil */
+  margin: 20px 0;          
 }
 
 .signup-divider span {
@@ -156,4 +156,29 @@
 .login-text a {
   color: #ff3cac;
   text-decoration: none;
+}
+
+/* Wrapper untuk Input dan Ikon */
+.input-group {
+    position: relative;
+    width: 90%; /* Sesuaikan dengan lebar input */
+    margin: 8px auto; /* Untuk menjaga margin vertikal input */
+}
+
+/* Terapkan width 100% pada input di dalam group */
+.signup-card .input-group input {
+    width: 100%; 
+    margin: 0; /* Hapus margin vertikal ganda */
+}
+
+/* Style Ikon Mata */
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #d4d4d4;
+    font-size: 18px; /* Ukuran ikon */
+    z-index: 10;
 }
