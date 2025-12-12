@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./style/Home.css";
 import { FiHome, FiSearch, FiGrid } from "react-icons/fi";
 import { FaPlay, FaPause } from "react-icons/fa"
@@ -64,6 +65,8 @@ import ordinaryAudio from "../assets/audio/ordinary.mp3";
 
 
 export default function Home() {
+  const navigate = useNavigate();
+
   /* --- PLAYLIST / DATA --- */
   const playlist = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
@@ -93,7 +96,6 @@ export default function Home() {
     { id: 1, title: "Die With a Smile", artist: "Bruno Mars", img: dieImg, src: dieAudio },
     { id: 2, title: "Havana", artist: "Camila Cabello", img: havanaImg, src: havanaAudio },
     { id: 3, title: "Collide", artist: "Howie Day", img: collideImg, src: collideAudio },
-   
   ];
 
 
@@ -106,17 +108,15 @@ export default function Home() {
     { id: 10, img: PerfectImg, title: "Perfect", artist: "Ed Sheeran", src: perfectAudio },
     { id: 7, img: ShapeofyouImg, title: "Shape Of You", artist: "Ed Sheeran", src: shapeofyouAudio },
     { id: 8, img: BlindingImg, title: "Blinding Light", artist: "The Weekend", src: blindingAudio },
-
-
   ];
 
-const allSongs = [
-  ...playlist,
-  ...recommendList.map((r, i) => ({
-    ...r,
-    id: playlist.length + i, 
-  })),
-];
+  const allSongs = [
+    ...playlist,
+    ...recommendList.map((r, i) => ({
+      ...r,
+      id: playlist.length + i, 
+    })),
+  ];
 
 
   const recentList = [
@@ -143,7 +143,6 @@ const allSongs = [
     { img: iHeartImg, title: "i <3 u", artist: "Boy Pablo", src: iHeartAudio },
     { img: loseImg, title: "Lose", artist: "NIKI", src: loseAudio },
   ];
-
 
   /* --- AUDIO STATE --- */
   const audioRef = useRef(new Audio(allSongs[0].src));
@@ -402,24 +401,24 @@ const backToHomeFromArtist = () => {
 
   /* --- GRID DATA --- */
   const searchBanners = [
-  { img: OrdinaryImg, label: "12.345" },
-  { img: dieImg, label: "12.345" }
-];
+    { img: OrdinaryImg, label: "12.345" },
+    { img: dieImg, label: "12.345" }
+  ];
 
- const allArtists = [
-  { img: BrunoImg, name: "Bruno Mars" },
-  { img: CamillaImg, name: "Camilla cabello" },
-  { img: HowieImg, name: "Howie Day" },
-  { img: KeyshiaImg, name: "Keyshia Cole" },
-  { img: TopArtist5Img, name: "Lana Del Rey" },
-  { img: MattyImg, name: "Matty Healy" },
-  { img: Ariana2Img, name: "Ariana Grande" },
-  { img: NikiImg, name: "NIKI" },
-  { img: TaylorImg, name: "Taylor Swift" },
-  { img: EdSheeranImg, name: "Ed Sheeran" },
-  { img: CharlieImg, name: "Charlie Puth" },
-  { img: BillieImg, name: "Billie Eilish" },
-];
+  const allArtists = [
+    { img: BrunoImg, name: "Bruno Mars" },
+    { img: CamillaImg, name: "Camilla cabello" },
+    { img: HowieImg, name: "Howie Day" },
+    { img: KeyshiaImg, name: "Keyshia Cole" },
+    { img: TopArtist5Img, name: "Lana Del Rey" },
+    { img: MattyImg, name: "Matty Healy" },
+    { img: Ariana2Img, name: "Ariana Grande" },
+    { img: NikiImg, name: "NIKI" },
+    { img: TaylorImg, name: "Taylor Swift" },
+    { img: EdSheeranImg, name: "Ed Sheeran" },
+    { img: CharlieImg, name: "Charlie Puth" },
+    { img: BillieImg, name: "Billie Eilish" },
+  ];
 
 
   const allTopMusic = [
@@ -431,10 +430,10 @@ const backToHomeFromArtist = () => {
   ];
 
   // ===== SEARCH FILTER RESULT =====
-const filteredResults = playlist.filter((song) =>
-  song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  song.artist.toLowerCase().includes(searchQuery.toLowerCase())
-);
+  const filteredResults = playlist.filter((song) =>
+    song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    song.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
 
   return (
@@ -509,7 +508,7 @@ const filteredResults = playlist.filter((song) =>
                 <FiHome size={20} /> Home
               </li>
 
-               <li
+              <li
                 className={`menu-item ${pageMode === "search" ? "active" : ""}`}
                 onClick={() => {
                   setPageMode("search");
@@ -649,9 +648,13 @@ const filteredResults = playlist.filter((song) =>
 
               <div className="search-right">
                 <button className="filter-btn">≋</button>
-                <div className="user-avatar">
-                  <img src={iyahImg} alt="pf" />
-                </div>
+                  <div 
+                    className="user-avatar"
+                    onClick={() => navigate("/profile")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img src={iyahImg} alt="pf" />
+                  </div>
               </div>
             </div>
 

@@ -21,58 +21,59 @@ import MusicList from "./components/MusicList";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Home from "./components/Home"; // ✅ HOME BARU SETELAH LOGIN
+import ProfilePage from "./components/ProfilePage";
 
 
 // =========================
 // MOCK PROFILE PAGE UNTUK MENUNJUKKAN DATA LOGIN
 // =========================
-function ProfilePage() {
-    // Ambil data user dari localStorage
-    const userProfile = JSON.parse(localStorage.getItem("userProfile"));
-    const navigate = useNavigate();
+// function ProfilePage() {
+//     // Ambil data user dari localStorage
+//     const userProfile = JSON.parse(localStorage.getItem("userProfile"));
+//     const navigate = useNavigate();
 
-    const handleLogout = () => {
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("userProfile");
-      navigate("/login");
-    };
+//     const handleLogout = () => {
+//       localStorage.removeItem("isLoggedIn");
+//       localStorage.removeItem("userProfile");
+//       navigate("/login");
+//     };
 
-    if (!userProfile) {
-      return (
-        <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h2 style={{color: 'red'}}>Akses Ditolak. Harap Login.</h2>
-            <button onClick={() => navigate("/login")}>Go to Login</button>
-        </div>
-      );
-    }
+//     if (!userProfile) {
+//       return (
+//         <div style={{ padding: '40px', textAlign: 'center' }}>
+//             <h2 style={{color: 'red'}}>Akses Ditolak. Harap Login.</h2>
+//             <button onClick={() => navigate("/login")}>Go to Login</button>
+//         </div>
+//       );
+//     }
 
-    return (
-        <div style={{ padding: '40px', maxWidth: '600px', margin: '50px auto', border: '1px solid #6e114b', borderRadius: '10px', background: '#f8e6f3' }}>
-            <h2 style={{ color: '#6e114b', textAlign: 'center' }}>Halaman Profile User</h2>
-            <hr style={{ borderColor: '#b84a9a' }}/>
+//     return (
+//         <div style={{ padding: '40px', maxWidth: '600px', margin: '50px auto', border: '1px solid #6e114b', borderRadius: '10px', background: '#f8e6f3' }}>
+//             <h2 style={{ color: '#6e114b', textAlign: 'center' }}>Halaman Profile User</h2>
+//             <hr style={{ borderColor: '#b84a9a' }}/>
             
-            <p><strong>Username:</strong> {userProfile.username}</p>
-            <p><strong>Email:</strong> {userProfile.email}</p>
-            <p><strong>ID User:</strong> {userProfile.id}</p>
-            <p><strong>Tanggal Daftar:</strong> {userProfile.joinDate}</p>
+//             <p><strong>Username:</strong> {userProfile.username}</p>
+//             <p><strong>Email:</strong> {userProfile.email}</p>
+//             <p><strong>ID User:</strong> {userProfile.id}</p>
+//             <p><strong>Tanggal Daftar:</strong> {userProfile.joinDate}</p>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
-                <button 
-                  onClick={() => navigate('/home')}
-                  style={{ padding: '10px 20px', background: '#333', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                >
-                  Kembali ke Home
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  style={{ padding: '10px 20px', background: '#b84a9a', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                >
-                  Logout
-                </button>
-            </div>
-        </div>
-    );
-}
+//             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
+//                 <button 
+//                   onClick={() => navigate('/home')}
+//                   style={{ padding: '10px 20px', background: '#333', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+//                 >
+//                   Kembali ke Home
+//                 </button>
+//                 <button 
+//                   onClick={handleLogout}
+//                   style={{ padding: '10px 20px', background: '#b84a9a', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+//                 >
+//                   Logout
+//                 </button>
+//             </div>
+//         </div>
+//     );
+// }
 
 
 // =========================
@@ -154,7 +155,7 @@ function AppLayout() {
         {/* RUTE USER TERPROTEKSI */}
         {/* Jika user sudah login, tampilkan Home, jika belum, redirect ke /login */}
         <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
-        <Route path="/profile" element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />} /> 
+        <Route path="/profile" element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />} />
 
         {/* Redirect default: jika sudah login ke /home, jika belum ke landing page */}
         <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/"} />} />

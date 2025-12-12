@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import './style/ProfilePage.css';
 import { useNavigate } from 'react-router-dom'; 
 
+import { apiLogout } from "../api/userApi";
+
 // Import Icons
 import { 
   FaHome, FaSearch, FaThLarge, FaHeart, FaRegHeart, FaEllipsisH, 
@@ -95,6 +97,7 @@ const ProfilePage = ({ onPlay }) => {
   const menuRef = useRef(null); 
   const searchRef = useRef(null);
   const seeAllRef = useRef(null);
+  const moreMenuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -103,6 +106,7 @@ const ProfilePage = ({ onPlay }) => {
         setIsSearchFocused(false);
       }
       if (seeAllRef.current && !seeAllRef.current.contains(event.target)) setIsSeeAllOpen(false);
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) setIsMoreMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -256,14 +260,14 @@ const ProfilePage = ({ onPlay }) => {
           {/* PERBAIKAN 2: Header Kanan (Volume & Foto Profil) */}
           <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
              {/* Ikon Volume */}
-             <div style={{width:40, height:40, background:'white', borderRadius:'50%', display:'grid', placeItems:'center', color:'black', cursor:'pointer'}}>
-                <FaVolumeUp/>
-             </div>
-             
-             {/* Foto Profil (Mengisi lingkaran putih sebelumnya) */}
-             <div style={{width:40, height:40, borderRadius:'50%', cursor:'pointer', overflow:'hidden', border: '2px solid white'}}>
-                <img src={imgProfileUser} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
-             </div>
+              <div style={{width:40, height:40, background:'white', borderRadius:'50%', display:'grid', placeItems:'center', color:'black', cursor:'pointer'}}>
+                  <FaVolumeUp/>
+              </div>
+              
+              {/* Foto Profil (Mengisi lingkaran putih sebelumnya) */}
+              <div style={{width:40, height:40, borderRadius:'50%', cursor:'pointer', overflow:'hidden', border: '2px solid white'}}>
+                  <img src={imgProfileUser} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+              </div>
           </div>
         </div>
 
@@ -306,13 +310,13 @@ const ProfilePage = ({ onPlay }) => {
             
             <div className="profile-actions">
               <div className="dots-container" ref={menuRef}>
-                 <div className="dots-trigger" onClick={() => setIsMenuOpen(!isMenuOpen)}><FaEllipsisH /></div>
-                 {isMenuOpen && (
-                   <div className="dropdown-menu">
-                     <div className="menu-item" onClick={handleOpenMoreProfile}><FaPen /> Edit Profile</div>
-                     <div className="menu-item" onClick={handleCopyLink}><FaCopy /> Copy link to profile</div>
-                   </div>
-                 )}
+                  <div className="dots-trigger" onClick={() => setIsMenuOpen(!isMenuOpen)}><FaEllipsisH /></div>
+                  {isMenuOpen && (
+                    <div className="dropdown-menu">
+                      <div className="menu-item" onClick={handleOpenMoreProfile}><FaPen /> Edit Profile</div>
+                      <div className="menu-item" onClick={handleCopyLink}><FaCopy /> Copy link to profile</div>
+                    </div>
+                  )}
               </div>
               <div className="action-divider"></div>
             </div>
@@ -378,11 +382,36 @@ const ProfilePage = ({ onPlay }) => {
       {/* --- POPUPS & MODALS --- */}
       {isMoreMenuOpen && (
         <div className="more-menu-overlay" onClick={() => setIsMoreMenuOpen(false)}>
-          <div className="more-menu-container" onClick={(e) => e.stopPropagation()}>
+            <div 
+              className="more-menu-container"
+              ref={moreMenuRef}
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="more-menu-item" onClick={() => navigate('/account')}><span>Account</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
             <div className="more-menu-item" onClick={() => navigate('/edit-profile')}><span>Profile</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
             <div className="more-menu-item" onClick={() => navigate('/settings')}><span>Settings</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
-            <div className="more-menu-item logout-item" onClick={() => { alert('Logged out'); setIsMoreMenuOpen(false); }}><span>Logout</span></div>
+            <div 
+              className="more-menu-item logout-item"
+              onClick={async () => {
+                try {
+                  await apiLogout(); // PENTING! panggil backend untuk hapus token Redis
+                } catch (err) {
+                  console.warn("Backend logout error:", err);
+                }
+
+                // bersihkan sesi login FE
+                localStorage.removeItem("token");
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userProfile");
+
+                setIsMoreMenuOpen(false);
+
+                // redirect ke login
+                navigate("/login");
+              }}
+            >
+              <span>Logout</span>
+            </div>
           </div>
         </div>
       )}
