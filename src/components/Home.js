@@ -622,7 +622,7 @@ const backToHomeFromArtist = () => {
             <div className="search-row">
               {/* ===== GLOBAL SEARCH OVERLAY (HIGH PRIORITY) ===== */}
               {isSearching && (
-                <div className="search-result-global">
+                <div className="search-results-global">
                   <h3 className="search-title">Search Results</h3>
 
                   {filteredResults.length === 0 ? (
@@ -971,8 +971,8 @@ const backToHomeFromArtist = () => {
             
 
             {/* ====== SHOW ALL RECENTLY PLAYED (CENTER) ====== */}
-{view === "recently" && (
-  <>
+            {view === "recently" && (
+              <>
 
     {/* ===== TOP ARTIST ===== */}
     <section className="top-artist">
@@ -982,18 +982,18 @@ const backToHomeFromArtist = () => {
       </div>
 
       <div className="recently-artists">
-  {[
-    { img: BrunoImg, name: "Bruno Mars" },
-    { img: CamillaImg, name: "Camilla Cabello" },
-    { img: HowieImg, name: "Howie Day" },
-    { img: KeyshiaImg, name: "Keyshia Cole" },
-  ].map((a, i) => (
-    <div key={i} className="recently-artist-avatar">
-      <img src={a.img} alt={a.name} />
-      <p>{a.name}</p>
-    </div>
-  ))}
-</div>
+        {[
+          { img: BrunoImg, name: "Bruno Mars" },
+          { img: CamillaImg, name: "Camilla Cabello" },
+          { img: HowieImg, name: "Howie Day" },
+          { img: KeyshiaImg, name: "Keyshia Cole" },
+        ].map((a, i) => (
+          <div key={i} className="recently-artist-avatar">
+            <img src={a.img} alt={a.name} />
+            <p>{a.name}</p>
+          </div>
+        ))}
+      </div>
 
     </section>
 
@@ -1226,7 +1226,7 @@ const backToHomeFromArtist = () => {
                 <div className="right-header">
                   <h3>Recently Played</h3>
                   <span className="see-all"
-                   onClick={() => setShowRecentlyPopup(true)}
+                    onClick={() => setShowRecentlyPopup(true)}
                   >See All</span>
                 </div>
 

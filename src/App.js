@@ -1,5 +1,3 @@
-// App.js (SETELAH DIPERBAIKI)
-
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom"; // Import Navigate
 import { useNavigate } from "react-router-dom"; // Import useNavigate (untuk ProfilePage mock)
 
