@@ -15,20 +15,38 @@ export const getProfile = async () => {
 * payload: { username, email, gender, birthdate }
 */
 export const updateProfile = async (payload) => {
-    const res = await axios.put("/api/users/me", payload);
-    return res.data;
+    try {
+        const res = await axios.put("/api/users/me", payload);
+        return res.data;
+    } catch (err) {
+        console.error("updateProfile error:", err);
+        return { success: false, message: err.message };
+    }
 };
 
 /**
-* UPDATE avatar
-* PUT /api/users/avatar  (multipart/form-data)
-* formData must contain file under key 'file'
-*/
-export const updateAvatar = async (formData) => {
-    const res = await axios.put("/api/users/avatar", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-    });
-    return res.data;
+ * UPDATE avatar
+ * POST /api/users/avatar  (multipart/form-data)
+ * formData must contain file under key 'file'
+ */
+export const uploadAvatar = async (file) => {
+    try {
+        const formData = new FormData();
+        // ----- PENTING: gunakan key 'file' karena BE mengharapkan itu -----
+        formData.append("file", file);
+
+        // ----- PENTING: gunakan POST (kamu bilang methodnya POST) -----
+        const res = await axios.post("/api/users/avatar", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        return res.data;
+    } catch (err) {
+        console.error("Upload avatar error:", err.response || err);
+        // Usahakan return bentuk yang konsisten untuk FE
+        const message = err?.response?.data?.message || err.message || "Unknown error";
+        return { success: false, message };
+    }
 };
 
 /**
