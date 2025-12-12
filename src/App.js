@@ -22,6 +22,8 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Home from "./components/Home"; // ✅ HOME BARU SETELAH LOGIN
 import ProfilePage from "./components/ProfilePage";
+import AccountPage from "./components/AccountPage";
+import SettingsPage from "./components/SettingsPage";
 
 
 // =========================
@@ -125,7 +127,9 @@ function AppLayout() {
     "/loginadmin", 
     "/addmusic", 
     "/artistlist", 
-    "/musiclist"
+    "/musiclist",
+    "/account",
+    "/settings"
   ]; 
 
   const shouldHideNavbar = hideNavbarRoutes.includes(
@@ -156,6 +160,8 @@ function AppLayout() {
         {/* Jika user sudah login, tampilkan Home, jika belum, redirect ke /login */}
         <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/login" />} />
         <Route path="/profile" element={isLoggedIn ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/account" element={isLoggedIn ? <AccountPage /> : <Navigate to="/login" />} />
+        <Route path="/settings" element={isLoggedIn ? <SettingsPage /> : <Navigate to="/login" />} />
 
         {/* Redirect default: jika sudah login ke /home, jika belum ke landing page */}
         <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/"} />} />

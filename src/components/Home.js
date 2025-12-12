@@ -4,6 +4,7 @@ import "./style/Home.css";
 import { FiHome, FiSearch, FiGrid } from "react-icons/fi";
 import { FaPlay, FaPause } from "react-icons/fa"
 
+import { getProfile } from "../api/userApi";
 
 /* ---- IMAGES ---- */
 import aptImg from "../assets/images/APT.png";
@@ -66,7 +67,7 @@ import ordinaryAudio from "../assets/audio/ordinary.mp3";
 
 export default function Home() {
   const navigate = useNavigate();
-
+  
   /* --- PLAYLIST / DATA --- */
   const playlist = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
@@ -86,10 +87,67 @@ export default function Home() {
     { id: 14, title: "About You", artist: "The 1975", img: aboutYouImg, src: aboutYouAudio },
     { id: 15, title: "Love", artist: "Keyshia Cole", img: loveImg, src: loveAudio },
     { id: 16, title: "i <3 u", artist: "Boy Pablo", img: iHeartImg, src: iHeartAudio },
-
-    
-
   ];
+
+  const [profileData, setProfileData] = useState({
+    img: ""
+  });
+
+  // === LOAD PROFILE FROM BACKEND ===
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await getProfile();
+        if (res.success) {
+          setProfileData({
+            img: res.data.user.avatarUrl || ""
+          });
+        }
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  /* === LOAD RECENTLY PLAYED FROM BACKEND (like ProfilePage) === */
+  useEffect(() => {
+    const loadRecentlyPlayed = async () => {
+      try {
+        const res = await getProfile();
+        if (!res.success) return;
+
+        const u = res.data.user;
+
+        if (Array.isArray(u.recentlyPlayed)) {
+          // 1. Sort by latest
+          const sorted = [...u.recentlyPlayed].sort(
+            (a, b) => new Date(b.playedAt) - new Date(a.playedAt)
+          );
+
+          // 2. Deduplicate by songId
+          const unique = new Map();
+          sorted.forEach(rp => {
+            if (!unique.has(rp.songId)) unique.set(rp.songId, rp);
+          });
+
+          const uniqueList = [...unique.values()];
+
+          // 3. Map BE songId → FE playlist song object
+          const mapped = uniqueList
+            .map(rp => playlist.find(p => p.id === rp.songId) || null)
+            .filter(Boolean);
+
+          setRecentlyPlayed(mapped);
+        }
+      } catch (err) {
+        console.error("RECENTLY PLAYED ERROR:", err);
+      }
+    };
+
+    loadRecentlyPlayed();
+  }, [playlist]);
 
   const topmusicList = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
@@ -119,12 +177,12 @@ export default function Home() {
   ];
 
 
-  const recentList = [
-    { img: aptImg, title: "APT.", artist: "Bruno Mars" },
-    { img: dieImg, title: "Die With a Smile", artist: "Bruno Mars" },
-    { img: loseImg, title: "Lose", artist: "NIKI" },
-    { img: aboutYouImg, title: "About You", artist: "The 1975" },
-  ];
+  // const recentList = [
+  //   { img: aptImg, title: "APT.", artist: "Bruno Mars" },
+  //   { img: dieImg, title: "Die With a Smile", artist: "Bruno Mars" },
+  //   { img: loseImg, title: "Lose", artist: "NIKI" },
+  //   { img: aboutYouImg, title: "About You", artist: "The 1975" },
+  // ];
 
   const libraryList = [
     { img: likedsongimg, title: "Liked Songs", sub: "Playlist · 2 songs", gradient: "gradient-1" },
@@ -653,11 +711,13 @@ const backToHomeFromArtist = () => {
                     onClick={() => navigate("/profile")}
                     style={{ cursor: "pointer" }}
                   >
-                    <img src={iyahImg} alt="pf" />
+                    <img 
+                      src={profileData.img || require("../assets/images/img_profile.png")} 
+                      alt="pf"
+                    />
                   </div>
               </div>
             </div>
-
             {showFullPlayer && (
   <div className="full-player-page">
     {/* BANNER */}
@@ -1077,14 +1137,9 @@ const backToHomeFromArtist = () => {
 
                 {/* RECENTLY (small) */}
                 <section className="recently">
-                  <div className="section-head">
-                    <h2 className="section-title">Recently Played</h2>
-                    <span className="show-all" onClick={showAllRecently}>Show All</span>
-                  </div>
-
                   <div className="music-cards grid-4">
-                    {recentList.map((r, i) => (
-                      <div key={i} className="music-card">
+                    {recentlyPlayed.slice(0,4).map((r, i) => (
+                      <div key={i} className="music-card" onClick={() => onRecommendClick(r)}>
                         <img src={r.img} alt={r.title} />
                         <div className="music-meta">
                           <h4>{r.title}</h4>
