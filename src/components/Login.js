@@ -6,11 +6,12 @@ import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
 
 import LogoNeomusic from "../assets/images/Logo Neomusic.png";
 
+import { apiLogin } from "../api/userAuth.js";
 
 
 export default function Login() {
   const [form, setForm] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [error, setError] = useState(""); // State untuk pesan error
@@ -21,44 +22,68 @@ export default function Login() {
     setError("");
   };
 
-  const handleLogin = (e) => { // FUNGSI LOGIN
+  // const handleLogin = (e) => { // FUNGSI LOGIN
+  //   e.preventDefault();
+
+  //   const { username, password } = form;
+
+  //   if (!username || !password) {
+  //       setError("username dan password harus diisi.");
+  //       return;
+  //   }
+    
+  //   // 1. Ambil data user dari "backend" (localStorage)
+  //   const storedUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
+    
+  //   // 2. Cari user yang cocok
+  //   const user = storedUsers.find(
+  //     (u) => u.username === username && u.password === password
+  //   );
+
+  //   if (user) {
+  //     // 3. Login Berhasil: Set status dan data profile
+  //     localStorage.setItem("isLoggedIn", "true");
+  //     // Simpan data user yang akan diakses oleh Profile Page
+  //     const userProfile = {
+  //         id: user.id,
+  //         username: user.username,
+  //         username: user.username,
+  //         joinDate: user.joinDate
+  //         // HINDARI MENYIMPAN PASSWORD DI localStorage
+  //     };
+  //     localStorage.setItem("userProfile", JSON.stringify(userProfile));
+      
+  //     // 4. Navigasi ke halaman Home
+  //     console.log("Login berhasil, navigasi ke /home");
+  //     navigate("/home"); 
+
+  //   } else {
+  //     // Login gagal
+  //     setError("username atau password tidak ditemukan.");
+  //   }
+  // };
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    const { email, password } = form;
+    try {
+      const res = await apiLogin({
+        username: form.username,
+        password: form.password
+      });
 
-    if (!email || !password) {
-        setError("Email dan password harus diisi.");
+      if (!res.success) {
+        setError(res.message);
         return;
-    }
-    
-    // 1. Ambil data user dari "backend" (localStorage)
-    const storedUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
-    
-    // 2. Cari user yang cocok
-    const user = storedUsers.find(
-      (u) => u.email === email && u.password === password
-    );
+      }
 
-    if (user) {
-      // 3. Login Berhasil: Set status dan data profile
+      localStorage.setItem("token", res.data.token);
       localStorage.setItem("isLoggedIn", "true");
-      // Simpan data user yang akan diakses oleh Profile Page
-      const userProfile = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          joinDate: user.joinDate
-          // HINDARI MENYIMPAN PASSWORD DI localStorage
-      };
-      localStorage.setItem("userProfile", JSON.stringify(userProfile));
-      
-      // 4. Navigasi ke halaman Home
-      console.log("Login berhasil, navigasi ke /home");
-      navigate("/home"); 
 
-    } else {
-      // Login gagal
-      setError("Email atau password tidak ditemukan.");
+      navigate("/home");
+
+    } catch (err) {
+      console.error(err);
+      setError("Server error.");
     }
   };
 
@@ -83,9 +108,9 @@ export default function Login() {
 
           <input
             type="text"
-            name="email"
-            placeholder="Email / Phone"
-            value={form.email}
+            name="username"
+            placeholder="username"
+            value={form.username}
             onChange={handleChange}
           />
 
@@ -110,8 +135,6 @@ export default function Login() {
             Don’t have an account? <Link to="/signup">Sign Up</Link>
           </p>
           
-         
-
         </div>
       </div>
     </div>

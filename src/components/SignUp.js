@@ -8,6 +8,8 @@ import { FiEye, FiEyeOff } from "react-icons/fi"; // TAMBAHKAN INI
 
 import LogoNeomusic from "../assets/images/Logo Neomusic.png";
 
+import { apiRegister } from "../api/userAuth";
+
 // ... (Imports gambar tetap sama)
 
 export default function Signup() {
@@ -30,12 +32,51 @@ export default function Signup() {
     setError("");
   };
 
-  const handleSignUp = (e) => {
+  // const handleSignUp = (e) => {
+  //   e.preventDefault();
+
+  //   const { username, email, password, confirm } = form;
+
+  //   // ... (Logika validasi dan pendaftaran tetap sama)
+
+  //   if (!username || !email || !password || !confirm) {
+  //     setError("Semua kolom harus diisi.");
+  //     return;
+  //   }
+  //   if (password !== confirm) {
+  //     setError("Konfirmasi password tidak cocok.");
+  //     return;
+  //   }
+  //   if (password.length < 6) {
+  //       setError("Password minimal 6 karakter.");
+  //       return;
+  //   }
+
+  //   const storedUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
+  //   if (storedUsers.some(user => user.email === email)) {
+  //     setError("Email sudah terdaftar. Silakan login.");
+  //     return;
+  //   }
+
+  //   const newUser = {
+  //     id: Date.now().toString(),
+  //     username,
+  //     email,
+  //     password, 
+  //     joinDate: new Date().toLocaleDateString(),
+  //   };
+
+  //   const updatedUsers = [...storedUsers, newUser];
+  //   localStorage.setItem("appUsers", JSON.stringify(updatedUsers));
+    
+  //   alert("Registrasi berhasil! Silakan login.");
+  //   navigate("/login");
+  // };
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
     const { username, email, password, confirm } = form;
-
-    // ... (Logika validasi dan pendaftaran tetap sama)
 
     if (!username || !email || !password || !confirm) {
       setError("Semua kolom harus diisi.");
@@ -46,29 +87,31 @@ export default function Signup() {
       return;
     }
     if (password.length < 6) {
-        setError("Password minimal 6 karakter.");
-        return;
-    }
-
-    const storedUsers = JSON.parse(localStorage.getItem("appUsers")) || [];
-    if (storedUsers.some(user => user.email === email)) {
-      setError("Email sudah terdaftar. Silakan login.");
+      setError("Password minimal 6 karakter.");
       return;
     }
 
-    const newUser = {
-      id: Date.now().toString(),
-      username,
-      email,
-      password, 
-      joinDate: new Date().toLocaleDateString(),
-    };
+    try {
+      // CALL BACKEND REGISTER
+      const res = await apiRegister({
+        username,
+        email,
+        phone: "",
+        password
+      });
 
-    const updatedUsers = [...storedUsers, newUser];
-    localStorage.setItem("appUsers", JSON.stringify(updatedUsers));
-    
-    alert("Registrasi berhasil! Silakan login.");
-    navigate("/login");
+      if (!res.success) {
+        setError(res.message);
+        return;
+      }
+
+      alert("Registrasi berhasil! Silakan login.");
+      navigate("/login");
+
+    } catch (err) {
+      console.error(err);
+      setError("Terjadi kesalahan server.");
+    }
   };
 
   return (

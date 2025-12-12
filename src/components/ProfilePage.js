@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import './style/ProfilePage.css';
 import { useNavigate } from 'react-router-dom'; 
 
+import { apiLogout } from "../api/userApi";
+import { getProfile } from "../api/userApi";
+import { updateProfile } from "../api/userApi";
+import { uploadAvatar } from "../api/userApi";
+
 // Import Icons
 import { 
   FaHome, FaSearch, FaThLarge, FaHeart, FaRegHeart, FaEllipsisH, 
@@ -82,19 +87,88 @@ const ProfilePage = ({ onPlay }) => {
     { id: 102, title: "Havana", artist: "Camila Cabello", img: imgHavana },
   ]);
   
-  const [recentlyPlayedList, setRecentlyPlayedList] = useState([
-    { id: 2, title: "APT.", artist: "ROSÉ, Bruno Mars", img: imgApt },
-    { id: 5, title: "Havana", artist: "Camila Cabello", img: imgHavana },
-    { id: 6, title: "Collide", artist: "Howie Day", img: imgCollide },
-  ]);
+  // const [recentlyPlayedList, setRecentlyPlayedList] = useState([
+  //   { id: 2, title: "APT.", artist: "ROSÉ, Bruno Mars", img: imgApt },
+  //   { id: 5, title: "Havana", artist: "Camila Cabello", img: imgHavana },
+  //   { id: 6, title: "Collide", artist: "Howie Day", img: imgCollide },
+  // ]);
 
-  const [profileData, setProfileData] = useState({ name: "Jane Doe", img: imgProfileUser });
-  const [tempData, setTempData] = useState({ name: "", img: "" });
+  const [recentlyPlayedList, setRecentlyPlayedList] = useState([]);
+
+  const [profileData, setProfileData] = useState({
+    name: "",
+    img: "",
+    following: 0
+  });
+
+  const [tempData, setTempData] = useState({ 
+    name: "", 
+    img: "",
+    email: "",
+    gender: "",
+    birthdate: ""
+  });
+
 
   const fileInputRef = useRef(null);
   const menuRef = useRef(null); 
   const searchRef = useRef(null);
   const seeAllRef = useRef(null);
+  const moreMenuRef = useRef(null);
+
+  // === LOAD PROFILE FROM BACKEND ===
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await getProfile();
+        if (!res.success) return;
+
+        const u = res.data.user;
+
+        // --- SET PROFILE NAME + AVATAR ---
+        setProfileData(prev => ({
+          ...prev,
+          name: u.username || prev.name,
+          img: u.avatarUrl || imgProfileUser,
+          following: u._count?.following ?? (u.following?.length ?? 0)
+        }));
+
+        // --- MAP recentlyPlayed (backend → FE DB) ---
+        if (Array.isArray(u.recentlyPlayed)) {
+
+          // Sort: latest playedAt first
+          const sorted = [...u.recentlyPlayed].sort(
+            (a, b) => new Date(b.playedAt) - new Date(a.playedAt)
+          );
+
+          // Deduplicate by songId — only keep latest play per song
+          const uniqueMap = new Map();
+          sorted.forEach(item => {
+            if (!uniqueMap.has(item.songId)) {
+              uniqueMap.set(item.songId, item);
+            }
+          });
+
+          const uniqueList = [...uniqueMap.values()];
+
+          // Map to FE database songs
+          const mapped = uniqueList
+            .map(rp => {
+              const match = allDatabaseSongs.find(s => s.id === rp.songId);
+              return match || null;
+            })
+            .filter(Boolean);
+
+          setRecentlyPlayedList(mapped);
+        }
+
+      } catch (err) {
+        console.error("GET PROFILE ERROR:", err);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -103,6 +177,7 @@ const ProfilePage = ({ onPlay }) => {
         setIsSearchFocused(false);
       }
       if (seeAllRef.current && !seeAllRef.current.contains(event.target)) setIsSeeAllOpen(false);
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) setIsMoreMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -154,11 +229,65 @@ const ProfilePage = ({ onPlay }) => {
 
   const tracks = allDatabaseSongs.slice(0, 4);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const tempPreview = URL.createObjectURL(file);
+
+    setTempData(prev => ({
+      ...prev,
+      img: tempPreview, // tampilkan preview langsung
+      file // simpan file aslinya untuk upload ke BE
+    }));
+  };
+
   const handleOpenMoreProfile = () => { setIsMoreMenuOpen(true); setIsMenuOpen(false); };
   const handleOpenModal = () => { setTempData({ ...profileData }); setIsModalOpen(true); setIsMenuOpen(false); };
   const handleCloseModal = () => setIsModalOpen(false);
-  const handleSaveProfile = () => { setProfileData({ ...tempData }); setIsModalOpen(false); };
-  const handleFileChange = (e) => { const file = e.target.files[0]; if (file) { const imageUrl = URL.createObjectURL(file); setTempData(prev => ({ ...prev, img: imageUrl })); } };
+  const handleSaveProfile = async () => {
+    try {
+
+      let avatarUrl = profileData.img; // default
+
+      // === 1. UPLOAD AVATAR JIKA ADA FILE ===
+      if (tempData.file) {
+        const uploadRes = await uploadAvatar(tempData.file);
+        if (!uploadRes.success) {
+          alert("Gagal upload avatar: " + uploadRes.message);
+          return;
+        }
+        avatarUrl = uploadRes.data.avatarUrl; 
+      }
+
+      // === 2. UPDATE PROFILE (nama, dll) ===
+      const updateRes = await updateProfile({
+        username: tempData.name,
+        avatarUrl
+      });
+
+      if (!updateRes.success) {
+        alert("Gagal update profil: " + updateRes.message);
+        return;
+      }
+
+      // === 3. UPDATE FE UI ===
+      setProfileData(prev => ({
+        ...prev,
+        name: tempData.name,
+        img: avatarUrl
+      }));
+
+      alert("Profil berhasil diperbarui!");
+
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan.");
+    }
+
+    setIsModalOpen(false);
+  };
+
   const handleTriggerFile = () => fileInputRef.current.click();
   const handleCopyLink = () => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); setIsMenuOpen(false); };
 
@@ -256,14 +385,14 @@ const ProfilePage = ({ onPlay }) => {
           {/* PERBAIKAN 2: Header Kanan (Volume & Foto Profil) */}
           <div style={{display:'flex', gap:'10px', alignItems: 'center'}}>
              {/* Ikon Volume */}
-             <div style={{width:40, height:40, background:'white', borderRadius:'50%', display:'grid', placeItems:'center', color:'black', cursor:'pointer'}}>
-                <FaVolumeUp/>
-             </div>
-             
-             {/* Foto Profil (Mengisi lingkaran putih sebelumnya) */}
-             <div style={{width:40, height:40, borderRadius:'50%', cursor:'pointer', overflow:'hidden', border: '2px solid white'}}>
-                <img src={imgProfileUser} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
-             </div>
+              <div style={{width:40, height:40, background:'white', borderRadius:'50%', display:'grid', placeItems:'center', color:'black', cursor:'pointer'}}>
+                  <FaVolumeUp/>
+              </div>
+              
+              {/* Foto Profil (Mengisi lingkaran putih sebelumnya) */}
+              <div style={{width:40, height:40, borderRadius:'50%', cursor:'pointer', overflow:'hidden', border: '2px solid white'}}>
+                  <img src={profileData.img} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+              </div>
           </div>
         </div>
 
@@ -300,19 +429,21 @@ const ProfilePage = ({ onPlay }) => {
               <div className="profile-details">
                 <h2>My Profile</h2>
                 <h1 className="profile-name" onClick={handleOpenModal}>{profileData.name}</h1>
-                <p className="profile-stats">2 Public Playlist · 3 Following</p>
+                <p className="profile-stats">
+                  2 Public Playlist · {profileData.following || 0} Following
+                </p>
               </div>
             </div>
             
             <div className="profile-actions">
               <div className="dots-container" ref={menuRef}>
-                 <div className="dots-trigger" onClick={() => setIsMenuOpen(!isMenuOpen)}><FaEllipsisH /></div>
-                 {isMenuOpen && (
-                   <div className="dropdown-menu">
-                     <div className="menu-item" onClick={handleOpenMoreProfile}><FaPen /> Edit Profile</div>
-                     <div className="menu-item" onClick={handleCopyLink}><FaCopy /> Copy link to profile</div>
-                   </div>
-                 )}
+                  <div className="dots-trigger" onClick={() => setIsMenuOpen(!isMenuOpen)}><FaEllipsisH /></div>
+                  {isMenuOpen && (
+                    <div className="dropdown-menu">
+                      <div className="menu-item" onClick={handleOpenMoreProfile}><FaPen /> Edit Profile</div>
+                      <div className="menu-item" onClick={handleCopyLink}><FaCopy /> Copy link to profile</div>
+                    </div>
+                  )}
               </div>
               <div className="action-divider"></div>
             </div>
@@ -378,11 +509,36 @@ const ProfilePage = ({ onPlay }) => {
       {/* --- POPUPS & MODALS --- */}
       {isMoreMenuOpen && (
         <div className="more-menu-overlay" onClick={() => setIsMoreMenuOpen(false)}>
-          <div className="more-menu-container" onClick={(e) => e.stopPropagation()}>
+            <div 
+              className="more-menu-container"
+              ref={moreMenuRef}
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="more-menu-item" onClick={() => navigate('/account')}><span>Account</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
             <div className="more-menu-item" onClick={() => navigate('/edit-profile')}><span>Profile</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
             <div className="more-menu-item" onClick={() => navigate('/settings')}><span>Settings</span><div className="more-menu-icon-box"><FiArrowUpRight /></div></div>
-            <div className="more-menu-item logout-item" onClick={() => { alert('Logged out'); setIsMoreMenuOpen(false); }}><span>Logout</span></div>
+            <div 
+              className="more-menu-item logout-item"
+              onClick={async () => {
+                try {
+                  await apiLogout(); // PENTING! panggil backend untuk hapus token Redis
+                } catch (err) {
+                  console.warn("Backend logout error:", err);
+                }
+
+                // bersihkan sesi login FE
+                localStorage.removeItem("token");
+                localStorage.removeItem("isLoggedIn");
+                localStorage.removeItem("userProfile");
+
+                setIsMoreMenuOpen(false);
+
+                // redirect ke login
+                navigate("/login");
+              }}
+            >
+              <span>Logout</span>
+            </div>
           </div>
         </div>
       )}
@@ -393,7 +549,7 @@ const ProfilePage = ({ onPlay }) => {
             <button className="close-modal-btn" onClick={handleCloseModal}><FaTimes /></button>
             <h2 className="modal-title">Profile details</h2>
             <div className="edit-avatar-wrapper" onClick={handleTriggerFile}>
-              <img src={tempData.img} alt="Preview" className="edit-avatar" />
+              <img src={tempData.img || imgProfileUser} alt="Preview" className="edit-avatar" />
               <div className="edit-avatar-overlay"><FaCamera /></div>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{display: 'none'}} accept="image/*"/>
             </div>

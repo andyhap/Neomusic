@@ -1,8 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./style/Home.css";
 import { FiHome, FiSearch, FiGrid } from "react-icons/fi";
 import { FaPlay, FaPause } from "react-icons/fa"
 
+import { getProfile } from "../api/userApi";
 
 /* ---- IMAGES ---- */
 import aptImg from "../assets/images/APT.png";
@@ -64,6 +66,8 @@ import ordinaryAudio from "../assets/audio/ordinary.mp3";
 
 
 export default function Home() {
+  const navigate = useNavigate();
+  
   /* --- PLAYLIST / DATA --- */
   const playlist = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
@@ -83,17 +87,73 @@ export default function Home() {
     { id: 14, title: "About You", artist: "The 1975", img: aboutYouImg, src: aboutYouAudio },
     { id: 15, title: "Love", artist: "Keyshia Cole", img: loveImg, src: loveAudio },
     { id: 16, title: "i <3 u", artist: "Boy Pablo", img: iHeartImg, src: iHeartAudio },
-
-    
-
   ];
+
+  const [profileData, setProfileData] = useState({
+    img: ""
+  });
+
+  // === LOAD PROFILE FROM BACKEND ===
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const res = await getProfile();
+        if (res.success) {
+          setProfileData({
+            img: res.data.user.avatarUrl || ""
+          });
+        }
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  /* === LOAD RECENTLY PLAYED FROM BACKEND (like ProfilePage) === */
+  useEffect(() => {
+    const loadRecentlyPlayed = async () => {
+      try {
+        const res = await getProfile();
+        if (!res.success) return;
+
+        const u = res.data.user;
+
+        if (Array.isArray(u.recentlyPlayed)) {
+          // 1. Sort by latest
+          const sorted = [...u.recentlyPlayed].sort(
+            (a, b) => new Date(b.playedAt) - new Date(a.playedAt)
+          );
+
+          // 2. Deduplicate by songId
+          const unique = new Map();
+          sorted.forEach(rp => {
+            if (!unique.has(rp.songId)) unique.set(rp.songId, rp);
+          });
+
+          const uniqueList = [...unique.values()];
+
+          // 3. Map BE songId → FE playlist song object
+          const mapped = uniqueList
+            .map(rp => playlist.find(p => p.id === rp.songId) || null)
+            .filter(Boolean);
+
+          setRecentlyPlayed(mapped);
+        }
+      } catch (err) {
+        console.error("RECENTLY PLAYED ERROR:", err);
+      }
+    };
+
+    loadRecentlyPlayed();
+  }, [playlist]);
 
   const topmusicList = [
     { id: 0, title: "APT.", artist: "Bruno Mars", img: aptImg, src: aptAudio },
     { id: 1, title: "Die With a Smile", artist: "Bruno Mars", img: dieImg, src: dieAudio },
     { id: 2, title: "Havana", artist: "Camila Cabello", img: havanaImg, src: havanaAudio },
     { id: 3, title: "Collide", artist: "Howie Day", img: collideImg, src: collideAudio },
-   
   ];
 
 
@@ -106,25 +166,23 @@ export default function Home() {
     { id: 10, img: PerfectImg, title: "Perfect", artist: "Ed Sheeran", src: perfectAudio },
     { id: 7, img: ShapeofyouImg, title: "Shape Of You", artist: "Ed Sheeran", src: shapeofyouAudio },
     { id: 8, img: BlindingImg, title: "Blinding Light", artist: "The Weekend", src: blindingAudio },
-
-
   ];
 
-const allSongs = [
-  ...playlist,
-  ...recommendList.map((r, i) => ({
-    ...r,
-    id: playlist.length + i, 
-  })),
-];
-
-
-  const recentList = [
-    { img: aptImg, title: "APT.", artist: "Bruno Mars" },
-    { img: dieImg, title: "Die With a Smile", artist: "Bruno Mars" },
-    { img: loseImg, title: "Lose", artist: "NIKI" },
-    { img: aboutYouImg, title: "About You", artist: "The 1975" },
+  const allSongs = [
+    ...playlist,
+    ...recommendList.map((r, i) => ({
+      ...r,
+      id: playlist.length + i, 
+    })),
   ];
+
+
+  // const recentList = [
+  //   { img: aptImg, title: "APT.", artist: "Bruno Mars" },
+  //   { img: dieImg, title: "Die With a Smile", artist: "Bruno Mars" },
+  //   { img: loseImg, title: "Lose", artist: "NIKI" },
+  //   { img: aboutYouImg, title: "About You", artist: "The 1975" },
+  // ];
 
   const libraryList = [
     { img: likedsongimg, title: "Liked Songs", sub: "Playlist · 2 songs", gradient: "gradient-1" },
@@ -143,7 +201,6 @@ const allSongs = [
     { img: iHeartImg, title: "i <3 u", artist: "Boy Pablo", src: iHeartAudio },
     { img: loseImg, title: "Lose", artist: "NIKI", src: loseAudio },
   ];
-
 
   /* --- AUDIO STATE --- */
   const audioRef = useRef(new Audio(allSongs[0].src));
@@ -402,24 +459,24 @@ const backToHomeFromArtist = () => {
 
   /* --- GRID DATA --- */
   const searchBanners = [
-  { img: OrdinaryImg, label: "12.345" },
-  { img: dieImg, label: "12.345" }
-];
+    { img: OrdinaryImg, label: "12.345" },
+    { img: dieImg, label: "12.345" }
+  ];
 
- const allArtists = [
-  { img: BrunoImg, name: "Bruno Mars" },
-  { img: CamillaImg, name: "Camilla cabello" },
-  { img: HowieImg, name: "Howie Day" },
-  { img: KeyshiaImg, name: "Keyshia Cole" },
-  { img: TopArtist5Img, name: "Lana Del Rey" },
-  { img: MattyImg, name: "Matty Healy" },
-  { img: Ariana2Img, name: "Ariana Grande" },
-  { img: NikiImg, name: "NIKI" },
-  { img: TaylorImg, name: "Taylor Swift" },
-  { img: EdSheeranImg, name: "Ed Sheeran" },
-  { img: CharlieImg, name: "Charlie Puth" },
-  { img: BillieImg, name: "Billie Eilish" },
-];
+  const allArtists = [
+    { img: BrunoImg, name: "Bruno Mars" },
+    { img: CamillaImg, name: "Camilla cabello" },
+    { img: HowieImg, name: "Howie Day" },
+    { img: KeyshiaImg, name: "Keyshia Cole" },
+    { img: TopArtist5Img, name: "Lana Del Rey" },
+    { img: MattyImg, name: "Matty Healy" },
+    { img: Ariana2Img, name: "Ariana Grande" },
+    { img: NikiImg, name: "NIKI" },
+    { img: TaylorImg, name: "Taylor Swift" },
+    { img: EdSheeranImg, name: "Ed Sheeran" },
+    { img: CharlieImg, name: "Charlie Puth" },
+    { img: BillieImg, name: "Billie Eilish" },
+  ];
 
 
   const allTopMusic = [
@@ -431,10 +488,10 @@ const backToHomeFromArtist = () => {
   ];
 
   // ===== SEARCH FILTER RESULT =====
-const filteredResults = playlist.filter((song) =>
-  song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  song.artist.toLowerCase().includes(searchQuery.toLowerCase())
-);
+  const filteredResults = playlist.filter((song) =>
+    song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    song.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
 
   return (
@@ -509,7 +566,7 @@ const filteredResults = playlist.filter((song) =>
                 <FiHome size={20} /> Home
               </li>
 
-               <li
+              <li
                 className={`menu-item ${pageMode === "search" ? "active" : ""}`}
                 onClick={() => {
                   setPageMode("search");
@@ -649,12 +706,18 @@ const filteredResults = playlist.filter((song) =>
 
               <div className="search-right">
                 <button className="filter-btn">≋</button>
-                <div className="user-avatar">
-                  <img src={iyahImg} alt="pf" />
-                </div>
+                  <div 
+                    className="user-avatar"
+                    onClick={() => navigate("/profile")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img 
+                      src={profileData.img || require("../assets/images/img_profile.png")} 
+                      alt="pf"
+                    />
+                  </div>
               </div>
             </div>
-
             {showFullPlayer && (
   <div className="full-player-page">
     {/* BANNER */}
@@ -1074,14 +1137,9 @@ const filteredResults = playlist.filter((song) =>
 
                 {/* RECENTLY (small) */}
                 <section className="recently">
-                  <div className="section-head">
-                    <h2 className="section-title">Recently Played</h2>
-                    <span className="show-all" onClick={showAllRecently}>Show All</span>
-                  </div>
-
                   <div className="music-cards grid-4">
-                    {recentList.map((r, i) => (
-                      <div key={i} className="music-card">
+                    {recentlyPlayed.slice(0,4).map((r, i) => (
+                      <div key={i} className="music-card" onClick={() => onRecommendClick(r)}>
                         <img src={r.img} alt={r.title} />
                         <div className="music-meta">
                           <h4>{r.title}</h4>
