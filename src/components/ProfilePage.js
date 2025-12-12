@@ -129,7 +129,7 @@ const ProfilePage = ({ onPlay }) => {
         setProfileData(prev => ({
           ...prev,
           name: u.username || prev.name,
-          img: u.avatarUrl || prev.img,
+          img: u.avatarUrl || imgProfileUser,
           following: u._count?.following ?? (u.following?.length ?? 0)
         }));
 
@@ -391,7 +391,7 @@ const ProfilePage = ({ onPlay }) => {
               
               {/* Foto Profil (Mengisi lingkaran putih sebelumnya) */}
               <div style={{width:40, height:40, borderRadius:'50%', cursor:'pointer', overflow:'hidden', border: '2px solid white'}}>
-                  <img src={imgProfileUser} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                  <img src={profileData.img} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
               </div>
           </div>
         </div>
@@ -549,7 +549,7 @@ const ProfilePage = ({ onPlay }) => {
             <button className="close-modal-btn" onClick={handleCloseModal}><FaTimes /></button>
             <h2 className="modal-title">Profile details</h2>
             <div className="edit-avatar-wrapper" onClick={handleTriggerFile}>
-              <img src={tempData.img} alt="Preview" className="edit-avatar" />
+              <img src={tempData.img || imgProfileUser} alt="Preview" className="edit-avatar" />
               <div className="edit-avatar-overlay"><FaCamera /></div>
               <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{display: 'none'}} accept="image/*"/>
             </div>

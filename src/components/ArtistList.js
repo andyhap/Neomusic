@@ -6,6 +6,9 @@ import logo from "../assets/images/Logo Neomusic.png";
 import { Link, useNavigate } from "react-router-dom"; 
 import { artists as mockArtists } from "../data/MockData.js";
 import { musics as mockMusics } from "../data/MockData.js"; 
+
+import { getAllArtists } from "../api/artistApi";
+
 // Import ikon hapus (misalnya: FiTrash)
 import { FiTrash } from "react-icons/fi"; // TAMBAHKAN INI
 
@@ -15,15 +18,18 @@ export default function ArtistList() {
   const navigate = useNavigate(); 
 
   // Fungsi untuk mengambil dan menggabungkan data artis
-  const fetchArtists = () => {
-    // 1. Ambil dan gabungkan data Artist: data lokal baru + mock data
-    const savedArtists = JSON.parse(localStorage.getItem("artists")) || [];
-    setArtists([...mockArtists, ...savedArtists]); 
-    
-    // 2. Hitung jumlah Music
-    const savedMusics = JSON.parse(localStorage.getItem("addedMusics")) || [];
-    const totalMusic = savedMusics.length + mockMusics.length; 
-    setMusicCount(totalMusic);
+  const fetchArtists = async () => {
+    try {
+      const res = await getAllArtists(1, 50);
+
+      if (res.success) {
+        // kalau mau satukan dengan local:
+        const local = JSON.parse(localStorage.getItem("artists")) || [];
+        setArtists([...res.data, ...local]);
+      }
+    } catch (err) {
+      console.error("Error fetch artists:", err);
+    }
   };
   
   useEffect(() => {

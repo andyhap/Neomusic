@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './style/PlaylistPage.css'; // Layout Utama
 import './style/AccountPage.css';  // Style Form
 import { useNavigate } from 'react-router-dom';
+
+import { getProfile, updateProfile, apiLogout } from "../api/userApi";
 
 // Import Icons
 import { 
@@ -13,6 +15,35 @@ const AccountPage = () => {
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('menu'); 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    gender: "",
+    birthdate: "",
+  });
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const res = await getProfile();
+        if (res.success) {
+          const u = res.data.user;
+          setUserData({
+            name: u.username || "",
+            email: u.email || "",
+            gender: u.gender || "",
+            birthdate: u.birthdate ? u.birthdate.substring(0, 10) : "",
+          });
+        }
+      } catch (err) {
+        console.error("Load profile error:", err);
+      }
+    };
+
+    loadData();
+  }, []);
+
 
   // --- MENU UTAMA ---
   const MainMenu = () => (
@@ -51,8 +82,16 @@ const AccountPage = () => {
           <div className="menu-label"><FaQuestionCircle /> Bantuan</div>
           <FaChevronRight />
         </div>
-        <div className="account-menu-item" onClick={() => navigate('/')}> 
-          <div className="menu-label"><FaSignOutAlt /> Keluar Semua Perangkat</div>
+        <div 
+          className="account-menu-item"
+          onClick={async () => {
+            await apiLogout();
+            localStorage.removeItem("token");
+            localStorage.removeItem("isLoggedIn");
+            navigate("/login");
+          }}
+        >
+          <div className="menu-label"><FaSignOutAlt /> Keluar</div>
           <FaChevronRight />
         </div>
       </div>
@@ -62,7 +101,40 @@ const AccountPage = () => {
 
   // --- EDIT INFO PRIBADI ---
   const EditInfo = () => {
-    const [form, setForm] = useState({ name: '', email: '', gender: 'Laki-laki' });
+    const [form, setForm] = useState(userData);
+    const [day, setDay] = useState("");
+    const [month, setMonth] = useState("");
+    const [year, setYear] = useState("")
+
+    useEffect(() => {
+      setForm(userData);
+    }, [userData]);
+
+    useEffect(() => {
+      if (userData.birthdate) {
+        const [y, m, d] = userData.birthdate.split("-");
+        setYear(y);
+        setMonth(m);
+        setDay(d);
+      }
+      setForm(userData);
+    }, [userData]);
+
+    const monthNames = [
+      { value: "01", label: "Januari" },
+      { value: "02", label: "Februari" },
+      { value: "03", label: "Maret" },
+      { value: "04", label: "April" },
+      { value: "05", label: "Mei" },
+      { value: "06", label: "Juni" },
+      { value: "07", label: "Juli" },
+      { value: "08", label: "Agustus" },
+      { value: "09", label: "September" },
+      { value: "10", label: "Oktober" },
+      { value: "11", label: "November" },
+      { value: "12", label: "Desember" },
+    ];
+
     return (
       <div className="account-content">
         <div className="account-header">
@@ -93,15 +165,65 @@ const AccountPage = () => {
           <div className="form-group">
             <label>Tanggal Lahir</label>
             <div className="date-row">
-              <input className="form-input" placeholder="Tanggal" />
-              <select className="form-select"><option>Bulan Lahir</option></select>
-              <input className="form-input" placeholder="Tahun" />
+              <input
+                className="form-input"
+                placeholder="Tanggal"
+                value={day}
+                onChange={(e) => setDay(e.target.value)}
+              />
+
+              <select
+                className="form-select"
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+              >
+                <option value="">Bulan Lahir</option>
+                {monthNames.map(m => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+
+              <input
+                className="form-input"
+                placeholder="Tahun"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+              />
             </div>
           </div>
         </div>
         <div className="form-actions">
           <button className="btn-cancel" onClick={() => setCurrentView('menu')}>Batal</button>
-          <button className="btn-save" onClick={() => setCurrentView('menu')}>Simpan</button>
+          <button
+            className="btn-save"
+            onClick={async () => {
+              try {
+                const payload = {
+                  username: form.name,
+                  email: form.email,
+                  gender: form.gender,
+                  birthdate: form.birthdate,
+                  birthdate: year && month && day ? `${year}-${month}-${day}` : null,
+                };
+
+                const res = await updateProfile(payload);
+
+                if (!res.success) {
+                  alert("Gagal menyimpan perubahan: " + res.message);
+                  return;
+                }
+
+                alert("Berhasil diperbarui!");
+                setUserData(form);
+                setCurrentView("menu");
+              } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan.");
+              }
+            }}
+          >
+            Simpan
+          </button>
         </div>
         <div style={{ height: '30px', width: '100%' }}></div>
       </div>
